@@ -70,22 +70,21 @@ function Postulantes() {
   };
 
   const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    if (!editData.nombre || !editData.email || !editData.busqueda) {
-      toast.error('Completa los campos obligatorios');
-      return;
-    }
-    const formData = new FormData();
-    Object.keys(editData).forEach(key => {
-      formData.append(key, editData[key]);
-    });
-    const result = await editarPostulante(editando, formData);
-    if (result.success) {
-      toast.success('Postulante editado correctamente');
-      setEditando(null);
-    } else {
-      toast.error(result.error);
-    }
+      e.preventDefault();
+      if (!editData.nombre || !editData.email || !editData.busqueda) {
+        toast.error('Completa los campos obligatorios');
+        return;
+      }
+
+      // 🔹 Enviar JSON puro
+      const result = await editarPostulante(editando, editData);
+
+      if (result.success) {
+        toast.success('Postulante editado correctamente');
+        setEditando(null);
+      } else {
+        toast.error(result.error);
+      }
   };
 
   const handleDelete = (id) => {
@@ -180,11 +179,10 @@ function Postulantes() {
                   {p.cv ? (
                     <a
                       href={`${process.env.REACT_APP_BACKEND_URL}/${p.cv}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      download={p.cv.split('/').pop()} // 👈 fuerza descarga y usa nombre de archivo
                       className="text-blue-500 hover:underline"
                     >
-                      Ver CV
+                      Descargar CV
                     </a>
                   ) : '–'}
                 </td>

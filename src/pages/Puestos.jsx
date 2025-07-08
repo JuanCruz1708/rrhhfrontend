@@ -120,7 +120,7 @@ function Puestos() {
             onChange={handleChange}
             className="border p-2 rounded"
           >
-            <option value="">Selecciona Jefe (opcional)</option>
+            <option value="">Selecciona Puesto Superior (opcional)</option>
             {puestos.map((p) => (
               <option key={p.id} value={p.id}>{p.nombre}</option>
             ))}
@@ -148,7 +148,7 @@ function Puestos() {
         <table className="min-w-full bg-white">
           <thead className="bg-blue-100 text-gray-800">
             <tr>
-              {['Nombre', 'Descripción', 'Jefe', 'Acciones'].map((header) => (
+              {['Nombre', 'Descripción', 'Puesto Superior', 'Acciones'].map((header) => (
                 <th key={header} className="p-2 text-left text-sm font-semibold">{header}</th>
               ))}
             </tr>
@@ -160,7 +160,7 @@ function Puestos() {
                 <tr key={p.id} className="hover:bg-blue-50">
                   <td className="p-2 text-sm">{p.nombre}</td>
                   <td className="p-2 text-sm">{p.descripcion}</td>
-                  <td className="p-2 text-sm">{jefe ? jefe.nombre : 'Sin jefe'}</td>
+                  <td className="p-2 text-sm">{jefe ? jefe.nombre : '-'}</td>
                   <td className="p-2 text-sm">
                     <button onClick={() => abrirEditar(p)} className="text-blue-500 hover:underline mr-2">Editar</button>
                     <button onClick={() => handleDelete(p.id)} className="text-red-500 hover:underline">Eliminar</button>
@@ -200,7 +200,7 @@ function Puestos() {
                 onChange={handleEditChange}
                 className="w-full border p-2 rounded"
               >
-                <option value="">Selecciona Jefe (opcional)</option>
+                <option value="">Selecciona Puesto Superior (opcional)</option>
                 {puestos.map((p) => (
                   <option key={p.id} value={p.id}>{p.nombre}</option>
                 ))}

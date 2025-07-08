@@ -53,38 +53,30 @@ export const PostulanteProvider = ({ children }) => {
   };
 
   const editarPostulante = async (id, datosActualizados) => {
-    try {
-      const formData = new FormData();
-      for (const key in datosActualizados) {
-        formData.append(key, datosActualizados[key]);
-      }
+      try {
+        // 🔹 Enviar JSON puro sin FormData
+        const response = await api.put(`/postulantes/${id}`, datosActualizados);
 
-      const response = await api.put(`/postulantes/${id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+        const postulanteEditado = response.data;
+        console.log("Postulante editado:", postulanteEditado);
 
-      const postulanteEditado = response.data;
-      console.log("Postulante editado:", postulanteEditado);
+        setPostulantes(prev => {
+          const updated = prev.map(p => p.id === id ? postulanteEditado : p);
 
-      setPostulantes(prev => {
-        const updated = prev.map(p => p.id === id ? postulanteEditado : p);
+          updated.sort((a, b) => {
+            const aVal = a.busqueda || "";
+            const bVal = b.busqueda || "";
+            return aVal.localeCompare(bVal);
+          });
 
-        updated.sort((a, b) => {
-          const aVal = a.busqueda || "";
-          const bVal = b.busqueda || "";
-          return aVal.localeCompare(bVal);
+          return updated;
         });
 
-        return updated;
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error("Error al editar postulante", error.response?.data || error);
-      return { success: false, error: error.response?.data?.detail || "Error al editar postulante" };
-    }
+        return { success: true };
+      } catch (error) {
+        console.error("Error al editar postulante", error.response?.data || error);
+        return { success: false, error: error.response?.data?.detail || "Error al editar postulante" };
+      }
   };
 
   const eliminarPostulante = async (id) => {
