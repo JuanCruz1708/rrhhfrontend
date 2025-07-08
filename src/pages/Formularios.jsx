@@ -31,7 +31,8 @@ const Formularios = () => {
   const generarPDF = (contenido, nombreArchivo) => {
     const doc = new jsPDF();
     doc.setFontSize(12);
-    doc.text(contenido, 10, 20);
+    const lines = doc.splitTextToSize(contenido, 180); // Ajuste de ancho de página
+    doc.text(lines, 10, 20);
     doc.save(nombreArchivo);
   };
 
@@ -69,11 +70,18 @@ const Formularios = () => {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">📑 Formularios RRHH</h1>
 
-      <select value={formulario} onChange={(e) => setFormulario(e.target.value)} className="mb-4 p-2 border rounded">
-        {formularios.map((f, i) => (
-          <option key={i} value={f}>{f}</option>
-        ))}
-      </select>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Seleccionar formulario:</label>
+        <select
+          value={formulario}
+          onChange={(e) => setFormulario(e.target.value)}
+          className="p-2 border rounded w-full md:w-1/2"
+        >
+          {formularios.map((f, i) => (
+            <option key={i} value={f}>{f}</option>
+          ))}
+        </select>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         {(formulario === "Carta de despido" || formulario === "Notificación de sanción" || formulario === "Preaviso") && (
@@ -83,7 +91,7 @@ const Formularios = () => {
               <input name="dni" value={datos.dni} onChange={handleChange} placeholder="DNI" className="border p-2 rounded" />
             )}
             <input name="fecha" type="date" value={datos.fecha} onChange={handleChange} className="border p-2 rounded" />
-            <textarea name="motivo" value={datos.motivo} onChange={handleChange} placeholder="Motivo" className="border p-2 rounded col-span-2" />
+            <textarea name="motivo" value={datos.motivo} onChange={handleChange} placeholder="Motivo" className="border p-2 rounded col-span-1 md:col-span-2 h-24" />
           </>
         )}
 
@@ -105,7 +113,7 @@ const Formularios = () => {
         )}
       </div>
 
-      <button onClick={handleGenerar} className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+      <button onClick={handleGenerar} className="bg-blue-600 text-white w-full md:w-auto px-4 py-2 rounded hover:bg-blue-700">
         📥 Generar PDF
       </button>
     </div>

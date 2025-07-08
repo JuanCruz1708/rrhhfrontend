@@ -10,21 +10,32 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = async (usuario, password) => {
-    try {
-      const response = await api.post('/login/', { usuario, password });
-      if (response.data.mensaje === "Login exitoso") {
-        console.log("✅ Login exitoso:", response.data.usuario);
-        setUsuarioLogueado(response.data.usuario);
-        localStorage.setItem('usuarioLogueado', response.data.usuario);
-        return { success: true };
-      } else {
-        console.log("❌ Credenciales inválidas");
-        return { success: false, error: "Credenciales inválidas." };
+      try {
+          const response = await api.post('/login/', { usuario, password });
+          console.log("🔹 Respuesta del login:", response.data);
+
+          if (response.data.mensaje === "Login exitoso") {
+              console.log("🔹 Usuario recibido:", response.data.usuario);
+
+              if (response.data.usuario) {
+                  setUsuarioLogueado(response.data.usuario);
+                  localStorage.setItem('usuarioLogueado', response.data.usuario);
+                  return { success: true };
+              } else {
+                  console.error("❌ El usuario en la respuesta está vacío o undefined.");
+                  return { success: false, error: "Error interno al recibir usuario." };
+              }
+          } else {
+              return { success: false, error: "Credenciales inválidas." };
+          }
+      } catch (error) {
+          console.error("❌ Error al intentar login:", error);
+          let errorMsg = "Error al conectar con el servidor.";
+          if (error.response && error.response.status === 401) {
+              errorMsg = "Usuario o contraseña incorrectos.";
+          }
+          return { success: false, error: errorMsg };
       }
-    } catch (error) {
-      console.error("❌ Error en login:", error);
-      return { success: false, error: "Error al conectar con el servidor." };
-    }
   };
 
   const logout = () => {

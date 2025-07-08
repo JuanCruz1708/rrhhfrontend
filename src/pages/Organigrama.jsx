@@ -22,12 +22,23 @@ function Organigrama() {
     return raiz;
   };
 
-  const renderNodo = (nodo) => (
-    <li key={nodo.id}>
-      <div className="border rounded p-2 bg-white shadow mb-2">{nodo.nombre} {nodo.descripcion && `- ${nodo.descripcion}`}</div>
+  const renderNodo = (nodo, nivel = 0) => (
+    <li key={`${nodo.id}-${nivel}`} className="mb-2">
+      <div
+        className={`rounded p-2 shadow text-sm font-medium ${
+          nivel === 0
+            ? 'bg-blue-100 text-blue-800'
+            : nivel === 1
+            ? 'bg-green-100 text-green-800'
+            : 'bg-gray-100 text-gray-800'
+        }`}
+      >
+        {nodo.nombre}
+        {nodo.descripcion && ` - ${nodo.descripcion}`}
+      </div>
       {nodo.hijos.length > 0 && (
-        <ul className="ml-6 border-l pl-4">
-          {nodo.hijos.map((hijo) => renderNodo(hijo))}
+        <ul className="ml-6 border-l-2 border-gray-300 pl-4">
+          {nodo.hijos.map((hijo) => renderNodo(hijo, nivel + 1))}
         </ul>
       )}
     </li>

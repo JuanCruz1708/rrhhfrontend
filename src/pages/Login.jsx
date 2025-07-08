@@ -9,9 +9,13 @@ function Login() {
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
       e.preventDefault();
+      setLoading(true);
       const result = await login(usuario, password);
+      setLoading(false);
       if (result.success) {
           toast.success('Ingreso exitoso');
           navigate('/');
@@ -42,10 +46,11 @@ function Login() {
             className="w-full border p-2 rounded"
           />
           <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+              type="submit"
+              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+              disabled={loading}
           >
-            Ingresar
+              {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </form>
       </div>

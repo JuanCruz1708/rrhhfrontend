@@ -14,7 +14,7 @@ function Licencias() {
     fecha_fin: '',
     observaciones: '',
   });
-
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [editando, setEditando] = useState(null);
   const [editData, setEditData] = useState({ ...nueva });
 
@@ -23,10 +23,6 @@ function Licencias() {
 
   const handleChange = (e) => {
     setNueva({ ...nueva, [e.target.name]: e.target.value });
-  };
-
-  const handleEditChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -43,15 +39,9 @@ function Licencias() {
       await agregarLicencia(nueva);
       toast.success('Licencia agregada correctamente');
       setNueva({ empleado_id: '', tipo: '', fecha_inicio: '', fecha_fin: '', observaciones: '' });
+      setMostrarFormulario(false);
     } catch {
       toast.error('Error al agregar licencia');
-    }
-  };
-
-  const handleDelete = (id) => {
-    if (window.confirm('¿Seguro que deseas eliminar esta licencia?')) {
-      eliminarLicencia(id);
-      toast.success('Licencia eliminada correctamente');
     }
   };
 
@@ -64,6 +54,10 @@ function Licencias() {
       fecha_fin: licencia.fecha_fin,
       observaciones: licencia.observaciones || '',
     });
+  };
+
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
   };
 
   const handleEditSubmit = async (e) => {
@@ -89,6 +83,13 @@ function Licencias() {
     }
   };
 
+  const handleDelete = (id) => {
+    if (window.confirm('¿Seguro que deseas eliminar esta licencia?')) {
+      eliminarLicencia(id);
+      toast.success('Licencia eliminada correctamente');
+    }
+  };
+
   const licenciasFiltradas = licencias.filter((l) => {
     const empleado = empleados.find((e) => e.id === l.empleado_id);
     const coincideTipo = filtroTipo === '' || l.tipo.toLowerCase().includes(filtroTipo.toLowerCase());
@@ -100,72 +101,71 @@ function Licencias() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Gestión de Licencias</h2>
-
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-6">
-        <select name="empleado_id" value={nueva.empleado_id} onChange={handleChange} required className="border p-2 rounded">
-          <option value="">Selecciona Empleado</option>
-          {empleados.map((e) => (
-            <option key={e.id} value={e.id}>{e.apellido}, {e.nombre}</option>
-          ))}
-        </select>
-        <input type="text" name="tipo" value={nueva.tipo} onChange={handleChange} placeholder="Tipo de licencia" required className="border p-2 rounded" />
-        <div className="flex flex-col">
-          <label htmlFor="fecha_inicio" className="text-sm font-medium">Fecha desde:</label>
-          <input type="date" name="fecha_inicio" id="fecha_inicio" value={nueva.fecha_inicio} onChange={handleChange} required className="border p-2 rounded" />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="fecha_fin" className="text-sm font-medium">Fecha hasta:</label>
-          <input type="date" name="fecha_fin" id="fecha_fin" value={nueva.fecha_fin} onChange={handleChange} required className="border p-2 rounded" />
-        </div>
-        <input type="text" name="observaciones" value={nueva.observaciones} onChange={handleChange} placeholder="Observaciones" className="border p-2 rounded" />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
-            Agregar Licencia
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Gestión de Licencias</h2>
+        <button
+          onClick={() => setMostrarFormulario(!mostrarFormulario)}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          {mostrarFormulario ? 'Cancelar' : 'Agregar licencia'}
         </button>
-      </form>
+      </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
+      {mostrarFormulario && (
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 p-4 rounded shadow">
+          <select name="empleado_id" value={nueva.empleado_id} onChange={handleChange} className="border p-2 rounded" required>
+            <option value="">Selecciona Empleado</option>
+            {empleados.map((e) => (
+              <option key={e.id} value={e.id}>{e.apellido}, {e.nombre}</option>
+            ))}
+          </select>
+          <input type="text" name="tipo" value={nueva.tipo} onChange={handleChange} placeholder="Tipo de licencia" className="border p-2 rounded" required />
+          <input type="date" name="fecha_inicio" value={nueva.fecha_inicio} onChange={handleChange} className="border p-2 rounded" required />
+          <input type="date" name="fecha_fin" value={nueva.fecha_fin} onChange={handleChange} className="border p-2 rounded" required />
+          <input type="text" name="observaciones" value={nueva.observaciones} onChange={handleChange} placeholder="Observaciones" className="border p-2 rounded" />
+          <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 col-span-1 md:col-span-3">Confirmar Alta</button>
+        </form>
+      )}
+
+      <div className="flex flex-wrap gap-2 mb-4 bg-white p-2 rounded shadow-sm">
         <input
           type="text"
+          placeholder="Filtrar por tipo"
           value={filtroTipo}
           onChange={(e) => setFiltroTipo(e.target.value)}
-          placeholder="Filtrar por tipo de licencia"
           className="border p-2 rounded"
         />
         <input
           type="text"
+          placeholder="Buscar por empleado"
           value={filtroEmpleado}
           onChange={(e) => setFiltroEmpleado(e.target.value)}
-          placeholder="Buscar por empleado"
-          className="border p-2 rounded"
+          className="border p-2 rounded flex-1"
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border">Empleado</th>
-              <th className="p-2 border">Tipo</th>
-              <th className="p-2 border">Fecha desde</th>
-              <th className="p-2 border">Fecha hasta</th>
-              <th className="p-2 border">Observaciones</th>
-              <th className="p-2 border">Acciones</th>
+      <div className="overflow-x-auto rounded shadow">
+        <table className="min-w-full bg-white">
+          <thead className="bg-blue-100 text-gray-800">
+            <tr>
+              {['Empleado', 'Tipo', 'Fecha desde', 'Fecha hasta', 'Observaciones', 'Acciones'].map((header) => (
+                <th key={header} className="p-2 text-left text-sm font-semibold">{header}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {licenciasFiltradas.map((l) => {
               const empleado = empleados.find((e) => e.id === l.empleado_id);
               return (
-                <tr key={l.id} className="border-t">
-                  <td className="p-2 border">{empleado ? `${empleado.apellido}, ${empleado.nombre}` : 'No encontrado'}</td>
-                  <td className="p-2 border">{l.tipo}</td>
-                  <td className="p-2 border">{l.fecha_inicio}</td>
-                  <td className="p-2 border">{l.fecha_fin}</td>
-                  <td className="p-2 border">{l.observaciones}</td>
-                  <td className="p-2 border">
-                    <button onClick={() => abrirEditar(l)} className="text-blue-500 hover:text-blue-700 mr-2">Editar</button>
-                    <button onClick={() => handleDelete(l.id)} className="text-red-500 hover:text-red-700">Eliminar</button>
+                <tr key={l.id} className="hover:bg-blue-50">
+                  <td className="p-2 text-sm">{empleado ? `${empleado.apellido}, ${empleado.nombre}` : 'No encontrado'}</td>
+                  <td className="p-2 text-sm">{l.tipo}</td>
+                  <td className="p-2 text-sm">{l.fecha_inicio}</td>
+                  <td className="p-2 text-sm">{l.fecha_fin}</td>
+                  <td className="p-2 text-sm">{l.observaciones}</td>
+                  <td className="p-2 text-sm">
+                    <button onClick={() => abrirEditar(l)} className="text-blue-500 hover:underline mr-2">Editar</button>
+                    <button onClick={() => handleDelete(l.id)} className="text-red-500 hover:underline">Eliminar</button>
                   </td>
                 </tr>
               );
@@ -179,15 +179,15 @@ function Licencias() {
           <div className="bg-white p-4 rounded shadow w-full max-w-md">
             <h2 className="text-lg font-bold mb-4">Editar Licencia</h2>
             <form onSubmit={handleEditSubmit} className="space-y-2">
-              <select name="empleado_id" value={editData.empleado_id} onChange={handleEditChange} required className="w-full border p-2 rounded">
+              <select name="empleado_id" value={editData.empleado_id} onChange={handleEditChange} className="w-full border p-2 rounded" required>
                 <option value="">Selecciona Empleado</option>
                 {empleados.map((e) => (
                   <option key={e.id} value={e.id}>{e.apellido}, {e.nombre}</option>
                 ))}
               </select>
-              <input type="text" name="tipo" value={editData.tipo} onChange={handleEditChange} placeholder="Tipo de licencia" required className="w-full border p-2 rounded" />
-              <input type="date" name="fecha_inicio" value={editData.fecha_inicio} onChange={handleEditChange} required className="w-full border p-2 rounded" />
-              <input type="date" name="fecha_fin" value={editData.fecha_fin} onChange={handleEditChange} required className="w-full border p-2 rounded" />
+              <input type="text" name="tipo" value={editData.tipo} onChange={handleEditChange} placeholder="Tipo de licencia" className="w-full border p-2 rounded" required />
+              <input type="date" name="fecha_inicio" value={editData.fecha_inicio} onChange={handleEditChange} className="w-full border p-2 rounded" required />
+              <input type="date" name="fecha_fin" value={editData.fecha_fin} onChange={handleEditChange} className="w-full border p-2 rounded" required />
               <input type="text" name="observaciones" value={editData.observaciones} onChange={handleEditChange} placeholder="Observaciones" className="w-full border p-2 rounded" />
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setEditando(null)} className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Cancelar</button>
